@@ -338,7 +338,7 @@ Omega.GLS <- function(alpha=0.01,theta=0.98,independent,X,Y,recordLengths,
     for (i in 1:length(Y)) {
       for (j in 1:length(Y)) {
         if (i!=j) {
-          Covgg[i,j] <- M[i,j]*sign(Rhos[i,j])*abs(Rhos[i,j])^3*sqrt(Varg[i]*Varg[j])/sqrt((M[i,j]+M[i,i])*(M[i,j]+M[j,j])) # Covariance between at-site skews. Eq 24 and 25
+          Covgg[i,j] <- M[i,j]*sign(Rhos[i,j])*abs(Rhos[i,j])^3*sqrt(Varg[i]*Varg[j])/sqrt(M[i,i]*M[j,j]) # Covariance between at-site skews. Eq 24 and 25
         }
       }
     }
