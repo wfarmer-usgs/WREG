@@ -83,9 +83,10 @@ Leverage <- function(X,Omega,Ch=NA,x0=NA,ROI=FALSE) {
       if(!wregValidation(Omega, "numeric", message =
                          "The weighting matrix (Omega) must be provided as class numeric.", warnFlag = TRUE)){
         
-        wregValidation(det(Omega), "notEq", 0,
-                       paste0("Some independent variables (X) contain infinite ",
-                              "values.  These must be removed."), warnFlag = TRUE)
+        # Returning bad determinant
+        # wregValidation(det(Omega), "notEq", 0,
+        #                paste0("Some independent variables (X) contain infinite ",
+        #                       "values.  These must be removed."), warnFlag = TRUE)
       }
     }
   }
