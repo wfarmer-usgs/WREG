@@ -111,9 +111,9 @@ Influence <- function(e,X,Omega,Beta,ROI=FALSE,Lev=NA) {
       if(!wregValidation(Omega, "numeric", message =
                          "The weighting matrix (Omega) must be provided as class numeric.", warnFlag = TRUE)){
         
-        wregValidation(det(Omega), "notEq", 0,
-                       paste0("Some independent variables (X) contain infinite ",
-                              "values.  These must be removed."), warnFlag = TRUE)
+        # wregValidation(det(Omega), "notEq", 0,
+        #                paste0("Some independent variables (X) contain infinite ",
+        #                       "values.  These must be removed."), warnFlag = TRUE)
       }
     }
   }
