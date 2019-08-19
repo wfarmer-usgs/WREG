@@ -43,22 +43,6 @@ install.packages("WREG")
 
 Regularly, it is a good idea to update *ALL* your packages in R. If using RStudio, this is quite easy, there's an Update button in the "Packages" tab. This checks CRAN and GRAN for updates. It is a good idea to click this update regularly.
 
-## Run WREG
-
-To run the WREG app:
-
-1. Open RStudio
-2. In the Console (lower-left window of RStudio) paste the following:
-
-```r
-library(WREG)
-WREGgui()
-```
-
-A standalone executable is also available for the Microsoft Windows Operating Syste,.
-
-The package can also be used form the command line.  Specific functions, like the Region of Influence Regression, are only available from the command line.
-
 
 Disclaimer
 ----------
