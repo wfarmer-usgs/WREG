@@ -9,8 +9,11 @@
 #'
 #' @param x An output list from one of the WREG functions
 #' @param ... further arguments passed to or from other methods. 
+#' 
+#' @name print
 #'
 #' @note \code{print} is a generic name for the functions documented.
+#' \cr
 #' \cr
 #' If called, \code{print} displays a summary of the output from WREG functions
 #'
@@ -38,7 +41,7 @@ print.WREG.OLS <- function(x, ...) {
   object <- x
   cat(paste0("Regression Model for ",names(object$Y),'\n'))
   cat('Coefficients fit by ordinary least-squares.\n')
-  cat("\nEquation:\n", createEquation(object$Coefs$Coefficient),'\n\n')
+  cat("\nEquation:\n", regEquation(object),'\n\n')
   cat(paste0('\nPerformance Metrics\n(Note: Units are based',
              ' on the transformation of the dependent variable.)\n'))
   cat('Mean Squared Error:\t',
@@ -95,7 +98,7 @@ print.WREG.WLS <- function(x, ...) {
   object <- x
   cat(paste0("Regression Model for ",names(object$Y),'\n'))
   cat('Coefficients fit by weighted least-squares.\n')
-  cat("\nEquation:\n", createEquation(object$Coefs$Coefficient),'\n\n')
+  cat("\nEquation:\n", regEquation(object),'\n\n')
   cat(paste0('\nPerformance Metrics\n(Note: Units are based',
              ' on the transformation of the dependent variable.)\n'))
   cat('Mean Squared Error:\t',
@@ -166,7 +169,7 @@ print.WREG.GLS <- function(x, ...) {
   object <- x
   cat(paste0("Regression Model for ",names(object$Y),'\n'))
   cat('Coefficients fit by generalized least-squares.\n')
-  cat("\nEquation:\n", createEquation(object$Coefs$Coefficient),'\n\n')
+  cat("\nEquation:\n", regEquation(object),'\n\n')
   cat(paste0('\nPerformance Metrics\n(Note: Units are based',
              ' on the transformation of the dependent variable.)\n'))
   cat('Mean Squared Error:\t',
@@ -239,7 +242,7 @@ print.WREG.GLSs <- function(x, ...) {
 cat(paste0("Regression Model for ",names(object$Y),'\n'))
 cat(paste0('Coefficients fit by generalized least-squares with an \n',
            'adjustment for uncertainty in regional skew.\n'))
-cat("\nEquation:\n", createEquation(object$Coefs$Coefficient),'\n\n')
+cat("\nEquation:\n", regEquation(object),'\n\n')
 cat(paste0('\nPerformance Metrics\n(Note: Units are based',
            ' on the transformation of the dependent variable.)\n'))
 cat('Mean Squared Error:\t',
@@ -280,42 +283,3 @@ temp$Influence <- ifelse(object$LevInf.Sig[,2],
                          paste0(temp$Influence,'*'),temp$Influence)
 print(temp)
 }
-
-createEquation <- function(coeffs){
-
-  #if run from command line it is unkown how the equation was transformed
-  #return empty string
-  tryCatch({
-    xSide <- NULL
-    
-    if(length(coeffs)>length(xEq)){
-      xSide <- sprintf("\n\\\\%.2f + ",coeffs[1])
-      coeffs <- coeffs[-1]
-    }
-    
-    for(x in 1:length(coeffs)){
-      if(x == length(coeffs)){
-        if(is.null(xSide)){
-          xSide <- sprintf("\n\\\\%.2f * %s",coeffs[x],xEq[x])
-        }else{
-          xSide <- c(xSide, sprintf("\n\\\\%.2f * %s",coeffs[x],xEq[x]))
-        }
-      } else{
-        if(is.null(xSide)){
-          xSide <- sprintf("\n\\\\%.2f * %s + ",coeffs[x],xEq[x])
-        }else{
-          xSide <- c(xSide, sprintf("\n\\\\%.2f * %s + ",coeffs[x],xEq[x]))
-        }
-      }
-    }
-    
-    xSide <- paste(xSide, collapse="")
-    
-    regressionEquation <<- sprintf("%s%s%s%s", "$$", yEq,xSide, "$$")
-    return(c( yEq,gsub("\\\\","",xSide)))
-  },
-  error = function(e){
-    return("")
-  })
-}
-
