@@ -1,11 +1,6 @@
 #' Print summary of WREG results
 #' 
 #' @description Print methods for WREG output lists
-#' 
-#' @aliases print.OLS
-#' @aliases print.WLS
-#' @aliases print.GLS
-#' @aliases print.GLSs
 #'
 #' @param x An output list from one of the WREG functions
 #' @param ... further arguments passed to or from other methods. 
@@ -19,7 +14,7 @@
 #'
 #' @export
 #' 
-#' @rdname print
+#' @name print
 #' @return \code{print.WREG.OLS} Prints a summary of output list from WREG.OLS
 #' @examples 
 #' ## print.WREG.OLS
@@ -71,7 +66,7 @@ print.WREG.OLS <- function(x, ...) {
                            paste0(temp$Influence,'*'),temp$Influence)
   print(temp)
 }
-#' @rdname print
+#' @name print
 #' @return \code{print.WREG.WLS} Prints a summary of output list from WREG.WLS
 #' @examples 
 #' ## print.WREG.WLS
@@ -141,7 +136,7 @@ print.WREG.WLS <- function(x, ...) {
   print(temp)
 }
 #'
-#' @rdname print
+#' @name print
 #' @return \code{print.WREG.GLS} Prints a summary of output list from WREG.GLS
 #' @examples
 #' ## print.WREG.GLS
@@ -211,7 +206,7 @@ print.WREG.GLS <- function(x, ...) {
   print(temp)
 }
 #'
-#' @rdname print
+#' @name print
 #' @return \code{print.GLSs} Prints a summary of output list from WREG.GLS with
 #' an adjustment for uncertainty in the skewness
 #' @examples
