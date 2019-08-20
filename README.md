@@ -43,6 +43,13 @@ install.packages("WREG")
 
 Regularly, it is a good idea to update *ALL* your packages in R. If using RStudio, this is quite easy, there's an Update button in the "Packages" tab. This checks CRAN and GRAN for updates. It is a good idea to click this update regularly.
 
+## Version Notes
+Version 1: Implemented in Matlab with standalone executable.
+Version 2: Implemented in R, with GUI interface and standalone executable.
+Version 3.00: Removed GUI, thus depricating the standalone executable.
+  Fixed bugs in importPeakFQ function and added function to import from 
+  large, multi-site EXPs and PRTs.
+
 
 Disclaimer
 ----------
