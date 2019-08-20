@@ -10,7 +10,8 @@ importPeakFQ(pfqPath, gisFile, sites = "")
 \item{pfqPath}{A directory that contains all of PeakFQ files for each site 
 in the GIS file.  Files can be contained in the main path or in 
 subdirectories of \code{pfqPath}.  Each site should be represented by one
- and only one .EXP and .PRT file.}
+ and only one .EXP and .PRT file. (NOTE: \code{\link{importPeakFQ_oneFile}} 
+ is provided to parse EXPs and PRTs that contain more than one site.)}
 
 \item{gisFile}{A tab-delimited text file that contains a matrix whose rows 
 represent the sites and contains columns that include \sQuote{Station.ID}, 
