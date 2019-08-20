@@ -12,12 +12,16 @@
 #' represent the sites and contains columns that include \sQuote{Station.ID}, 
 #' \sQuote{Lat}, \sQuote{Long} and any other variables to be used for analysis.
 #' @param sites (optional) A vetor of sites that should be return.  Allows for 
-#' data subsetting.
+#' data subsetting. Gage IDs will be checked to ensure that they are an even
+#'  number of characters. If the length of an idea is an odd number of 
+#'  characters, a leading zero is appended.
 #' 
 #' @details
 #' This functions allows users to read output directly from PeakFQ without 
 #' the need to manipulate additional files.  The site selection is driven 
-#' by the sites in the GIS table.
+#' by the sites in the GIS table. Given the large variability of outputs from
+#' PeakFQ, based on user inputs, this is a fragile function; spot checks are
+#' recommended.
 #' 
 #' @return All outputs are returned as part of a list.  The list includes:
 #' \item{sites}{A vector of site IDs.}
@@ -62,7 +66,8 @@ importPeakFQ <- function(pfqPath,gisFile,sites='') {
   gisData$Station.ID <- toupper(as(gisData$Station.ID, 'character'))
   
   #check to see if any sites need a zero appended
-  zero_append <- which(nchar(gisData$Station.ID) != 8)
+  # Assumes that all gage ID should be an even set of characters
+  zero_append <- which((nchar(gisData$Station.ID) %% 2) != 0)
   gisData$Station.ID[zero_append] <- paste0("0",gisData$Station.ID[zero_append])
   
   # subset to specified sites
@@ -252,15 +257,17 @@ importPeakFQ <- function(pfqPath,gisFile,sites='') {
   colnames(EXP_SiteID) <- "Station.ID"
   
   AEP <- AEP[1,]
-  
-  colnames(Y) <- paste("AEP",AEP[1,],sep="_")
+  Y <- as.data.frame(Y)
+  colnames(Y) <- paste("AEP",AEP,sep="_")
   Y$Station.ID <- EXP_SiteID$Station.ID
   Y <- Y[c(ncol(Y),1:ncol(Y)-1)]
   
+  LP3f <- as.data.frame(LP3f)
   LP3f$Station.ID <- EXP_SiteID$Station.ID
   LP3f <- LP3f[c(ncol(LP3f),1:ncol(LP3f)-1)]
   
-  colnames(LP3k) <- paste("AEP",AEP[1,],sep="_")
+  LP3k <- as.data.frame(LP3k)
+  colnames(LP3k) <- paste("AEP",AEP,sep="_")
   LP3k$Station.ID <- EXP_SiteID$Station.ID
   LP3k <- LP3k[c(ncol(LP3k),1:ncol(LP3k)-1)]
   
