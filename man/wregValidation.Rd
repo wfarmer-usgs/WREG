@@ -4,8 +4,7 @@
 \alias{wregValidation}
 \title{Validation Scheme for WREG}
 \usage{
-wregValidation(input, mode, compare = NULL, message = NULL,
-  warnFlag = FALSE)
+wregValidation(input, mode, compare = NULL, message = NULL, warnFlag = FALSE)
 }
 \arguments{
 \item{input}{A value to validate.}

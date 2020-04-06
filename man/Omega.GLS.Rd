@@ -4,8 +4,19 @@
 \alias{Omega.GLS}
 \title{Calculate weighting matrix for GLS regression. (WREG)}
 \usage{
-Omega.GLS(alpha = 0.01, theta = 0.98, independent, X, Y, recordLengths, LP3,
-  MSEGR = NA, TY = 2, peak = TRUE, distMeth = 2)
+Omega.GLS(
+  alpha = 0.01,
+  theta = 0.98,
+  independent,
+  X,
+  Y,
+  recordLengths,
+  LP3,
+  MSEGR = NA,
+  TY = 2,
+  peak = TRUE,
+  distMeth = 2
+)
 }
 \arguments{
 \item{alpha}{A number, required only for \dQuote{GLS} and \dQuote{GLSskew}. 

@@ -65,8 +65,8 @@ This software is provided "AS IS."
 
 
 
-Windows Tests: [![Build status](https://ci.appveyor.com/api/projects/status/j83w5jf94nkb419s/branch/noGUI?svg=true)](https://ci.appveyor.com/project/wfarmer-usgs/wreg/branch/noGUI)
+Windows Tests: [![Build status](https://ci.appveyor.com/api/projects/status/j83w5jf94nkb419s/branch/master?svg=true)](https://ci.appveyor.com/project/wfarmer-usgs/wreg/branch/master)
 
-Linux Tests: [![Build Status](https://travis-ci.org/wfarmer-usgs/WREG.svg?branch=noGUI)](https://travis-ci.org/wfarmer-usgs/WREG)
+Linux Tests: [![Build Status](https://travis-ci.org/wfarmer-usgs/WREG.svg?branch=master)](https://travis-ci.org/wfarmer-usgs/WREG)
 
-Code Coverage: [![Coverage Status](https://coveralls.io/repos/github/wfarmer-usgs/WREG/badge.svg?branch=noGUI)](https://coveralls.io/github/wfarmer-usgs/WREG?branch=noGUI)
+Code Coverage: [![Coverage Status](https://coveralls.io/repos/github/wfarmer-usgs/WREG/badge.svg?branch=master)](https://coveralls.io/github/wfarmer-usgs/WREG?branch=master)

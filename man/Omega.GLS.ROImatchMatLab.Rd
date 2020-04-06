@@ -4,9 +4,22 @@
 \alias{Omega.GLS.ROImatchMatLab}
 \title{Weighing Matrix for ROI-GLS/skew (WREG)}
 \usage{
-Omega.GLS.ROImatchMatLab(alpha = 0.01, theta = 0.98, Independent, X, Y,
-  RecordLengths, LP3, MSEGR = NA, TY = 2, Peak = T, X.all, LP3.all,
-  DistMeth = 2, regSkew = FALSE)
+Omega.GLS.ROImatchMatLab(
+  alpha = 0.01,
+  theta = 0.98,
+  Independent,
+  X,
+  Y,
+  RecordLengths,
+  LP3,
+  MSEGR = NA,
+  TY = 2,
+  Peak = T,
+  X.all,
+  LP3.all,
+  DistMeth = 2,
+  regSkew = FALSE
+)
 }
 \arguments{
 \item{alpha}{A number, required only for \dQuote{GLS} and \dQuote{GLSskew}. 

@@ -4,9 +4,23 @@
 \alias{WREG.GLS}
 \title{Weighted-Multiple-Linear Regression Program (WREG)}
 \usage{
-WREG.GLS(Y, X, recordLengths, LP3, basinChars, transY, x0 = NA,
-  alpha = 0.01, theta = 0.98, peak = T, distMeth = 2, regSkew = FALSE,
-  MSEGR = NA, TY = 2, legacy = FALSE)
+WREG.GLS(
+  Y,
+  X,
+  recordLengths,
+  LP3,
+  basinChars,
+  transY,
+  x0 = NA,
+  alpha = 0.01,
+  theta = 0.98,
+  peak = T,
+  distMeth = 2,
+  regSkew = FALSE,
+  MSEGR = NA,
+  TY = 2,
+  legacy = FALSE
+)
 }
 \arguments{
 \item{Y}{A numeric vector of the dependent variable of interest, with any 

@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="William H. Farmer" />
+
+<meta name="date" content="2020-04-06" />
+
+<title>Weighted-Multiple-Linear Regression (WREG, v. 1.05-02)</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Weighted-Multiple-Linear Regression (WREG, v. 1.05-02)</h1>
+<h4 class="author">William H. Farmer</h4>
+<h4 class="date">2020-04-06</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>1 Introduction</h2>
+<p>The Weighted-Multiple-Linear Regression (WREG) package has been developed to replicate the functionality of the U.S. Geological Survey’s standalone WREG program (1). The WREG program was deployed as a MatLab executable program and is operated exclusively through a graphical user interface. The WREG package is intended to provide an open-source resource for users wishing to apply the methods of the WREG program in a more accessible, adaptable and transparent environment using the R programming language. The package is provided for users with some familiarity with the R programming environment. For users who prefer a graphical user interface, this has been included in the package as a Shiny application or through a standalone executable.</p>
+<p>The WREG package and program are designed to help users develop regional regression equations relating streamflow frequency statistics to basin characteristics. In addition to ordinary least-squares, WREG implements hydrologic applications of weighted and generalized least-squares (2 and 3). The original manual for the WREG program (1) provides the necessary background and documentation of the WREG program and package. This vignette guides potential users through the basic workflows required to implement ordinary, weighted and generalized least-squares regression.</p>
+<div id="compatability-between-the-wreg-program-and-package" class="section level3">
+<h3>1.1 Compatability between the WREG program and package</h3>
+<p>In the development of the WREG package, several improvements on the WREG program were considered and implemented. An option, <code>Legacy=TRUE</code> has been included to force the WREG package to return the same result as the WREG program. This is only included for testing, but may help transitioning users become comfortable with the validity of the new implementations.</p>
+</div>
+</div>
+<div id="package-and-example-data" class="section level2">
+<h2>2 Package and example data</h2>
+<p>Once installed, the WREG package is loaded in the standard way:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(WREG)</a></code></pre></div>
+<p>The package contains same sample input files formatted for the MatLab version of WREG. The input files have been condensed into list objects for easy manipulation and storage. The data can be loaded with the following command:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1">wregDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="kw">system.file</span>(<span class="st">&quot;exampleDirectory&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;WREG&quot;</span>),</a>
+<a class="sourceLine" id="cb2-2" title="2">  <span class="st">&quot;matlabImport&quot;</span>)</a>
+<a class="sourceLine" id="cb2-3" title="3">importedData &lt;-<span class="st"> </span><span class="kw">importWREG</span>(<span class="dt">wregPath =</span> wregDir)</a></code></pre></div>
+<p>The list object <code>importedData</code> contains the streamflow frequency statistics (originally contained in FlowChar.txt), the independent variables (SiteInfo.txt) and the parameters of the fitted Log-Pearson Type III distributions (LP3G.txt, LP3K.txt, and LP3s.txt).</p>
+<p>This example data set contains several dependent variables</p>
+<pre><code>## [1] &quot;Station.ID&quot; &quot;Q2&quot;         &quot;Q5&quot;         &quot;Q10&quot;        &quot;Q25&quot;       
+## [6] &quot;Q50&quot;        &quot;Q100&quot;       &quot;Q200&quot;       &quot;Q500&quot;</code></pre>
+<p>and several independent variables</p>
+<pre><code>## [1] &quot;Station.ID&quot; &quot;A&quot;          &quot;P1006&quot;      &quot;C&quot;          &quot;Sand&quot;      
+## [6] &quot;Long.1&quot;     &quot;OutletElev&quot; &quot;E&quot;          &quot;Slope&quot;</code></pre>
+<p>allowing users to explore additional regressions and transformations beyond the scope of this vignette.</p>
+<p>The <code>importedData</code> list also contains a matrix of the record lengths at each site and concurrent record lengths. The WREG program derives these from analyzing the USGS########.txt or AnnualTimeSeries.txt files, but those have been pre-processed here.</p>
+</div>
+<div id="ordinary-least-squares" class="section level2">
+<h2>3 Ordinary least-squares</h2>
+<p>Ordinary leasy-squares regression is implemented through the <code>WREG.OLS</code> function. Being the simplest form of regression implemented in the WREG package, ordinary least-squares regression requires the fewest inputs. Only independet and dependent variables are required to implement ordinary least-squares regression.</p>
+<p>For this vignette we will consider a regression of the 1% peak streamflow against drainage area and precipitation. We will fit a power-law regression, taking the natural logarithms of all independent and dependent variables. The following line of code prepares the dependent variable.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" title="1">Y &lt;-<span class="st"> </span><span class="kw">log</span>(importedData<span class="op">$</span>Y<span class="op">$</span>Q100)</a></code></pre></div>
+<p>The independent variables are defined as</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1">X &lt;-<span class="st"> </span><span class="kw">log</span>(importedData<span class="op">$</span>X[, <span class="kw">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;P1006&quot;</span>)])</a>
+<a class="sourceLine" id="cb6-2" title="2">X0 &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">1</span>,<span class="kw">nrow</span>(X))</a>
+<a class="sourceLine" id="cb6-3" title="3">X &lt;-<span class="st"> </span><span class="kw">cbind</span>(X0,X)</a></code></pre></div>
+<p>Note that it is necessary to include the vector, X0, in order to fit the leading coefficient or constant.</p>
+<p>The WREG program provided a graphical user interface for the selection and transformation of variables. Within the R console, this task is executed at the command line before passing inputs to the <code>WREG.OLS</code> function. In order for summary statistics to be computed in the correct units, a character string defining the transformation on the dependent variable must be included as the argument <code>transY</code>. Here, we used the natural logarithm transformation, so</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" title="1">transY &lt;-<span class="st"> &#39;ln&#39;</span></a></code></pre></div>
+<p>Once these inputs are defined, they are passed to <code>WREG.OLS</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1">Ex.OLS &lt;-<span class="st"> </span><span class="kw">WREG.OLS</span>(Y, X, transY)</a></code></pre></div>
+<p>The resulting list object, <code>Ex.OLS</code> contains a wide array of outputs</p>
+<pre><code>##  [1] &quot;Coefs&quot;              &quot;ResLevInf&quot;          &quot;LevLim&quot;            
+##  [4] &quot;InflLim&quot;            &quot;LevInf.Sig&quot;         &quot;PerformanceMetrics&quot;
+##  [7] &quot;X&quot;                  &quot;Y&quot;                  &quot;fitted.values&quot;     
+## [10] &quot;residuals&quot;          &quot;Weighting&quot;          &quot;Inputs&quot;</code></pre>
+<p>each of which is described in detail in the help file of <code>WREG.OLS</code>. The outputs of the WREG package are designed to be more comprehensive than the outputs of the WREG program.</p>
+<p>The entire output cann be summarized by printing the object <code>Ex.OLS</code></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1">Ex.OLS</a></code></pre></div>
+<pre><code>## Regression Model for 
+## Coefficients fit by ordinary least-squares.
+## 
+## Equation:
+##  Y = 5.69 * X0 - 0.03 * A + 2.03 * P1006 
+## 
+## 
+## Performance Metrics
+## (Note: Units are based on the transformation of the dependent variable.)
+## Mean Squared Error:   1.4991 
+## Root Mean Squared Error: 186.48%
+## Coefficient of Determination (R2):   9.92%
+## Adjusted Coefficient of Determination (Adj-R2):  -2.1%
+## 
+## Coefficients of Model      Coefficient  Standard Error T value  P&gt;|T|  
+## X0          5.688           2.519   2.258 0.0393 *
+## A          -0.030           0.163  -0.182 0.8580  
+## P1006       2.034           1.640   1.240 0.2338  
+## (* indicates significnace at the 5% level.)
+## 
+## Observations, Predictions, Residuals, Leverage and Influence
+## Leverage Limit:  0.3333
+## Influence Limit: 0.2222
+##    Observation Prediction Residual Leverage Influence
+## 1       6.1901     7.7270  -1.5369  0.4447*   1.1357*
+## 2       6.5043     8.2438  -1.7395   0.1507    0.2108
+## 3       7.8356     7.4168   0.4187   0.463*    0.0938
+## 4       8.3405     8.6906  -0.3502   0.1553    0.0089
+## 5       7.8055     8.4388  -0.6333   0.1735     0.034
+## 6       8.4031     8.5120  -0.1089   0.2229    0.0015
+## 7       8.8601     8.5910   0.2690   0.0814    0.0023
+## 8       8.3934     8.5487  -0.1552   0.1024     0.001
+## 9       9.1673     8.6215   0.5458   0.1247    0.0162
+## 10      7.1899     8.6882  -1.4983   0.0855    0.0765
+## 11      6.8302     8.7462  -1.9160   0.1014    0.1537
+## 12      8.8908     8.6997   0.1911   0.1802    0.0033
+## 13     10.2080     8.7021   1.5059   0.1422    0.1461
+## 14      9.8190     8.6873   1.1318    0.128    0.0719
+## 15      8.5362     8.6670  -0.1308   0.0901     6e-04
+## 16      9.9326     8.4151   1.5175   0.0638    0.0559
+## 17     10.1872     8.2097   1.9775   0.1109    0.1828
+## 18      8.4060     7.8943   0.5117   0.1791    0.0232</code></pre>
+<p>The coefficients, and associated statistics thereof, are included in <code>Coefs</code></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Coefficient</th>
+<th align="right">Standard Error</th>
+<th align="right">tStatistic</th>
+<th align="right">pValue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X0</td>
+<td align="right">5.6877</td>
+<td align="right">2.5193</td>
+<td align="right">2.2577</td>
+<td align="right">0.0393</td>
+</tr>
+<tr class="even">
+<td>A</td>
+<td align="right">-0.0297</td>
+<td align="right">0.1630</td>
+<td align="right">-0.1821</td>
+<td align="right">0.8580</td>
+</tr>
+<tr class="odd">
+<td>P1006</td>
+<td align="right">2.0341</td>
+<td align="right">1.6398</td>
+<td align="right">1.2405</td>
+<td align="right">0.2338</td>
+</tr>
+</tbody>
+</table>
+<p>Performance metrics are found in <code>PerformanceMetrics</code></p>
+<table>
+<thead>
+<tr class="header">
+<th align="right">MSE</th>
+<th align="right">R2</th>
+<th align="right">R2_adj</th>
+<th align="right">RMSE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="right">1.4991</td>
+<td align="right">0.0992</td>
+<td align="right">-0.021</td>
+<td align="right">186.4849</td>
+</tr>
+</tbody>
+</table>
+<p>Though not presented here, the residuals, leverage and inlufence are found in <code>ResLevInf</code>.</p>
+<p>These outputs can be used to create a wide range of performance plots for detailed analysis. Here are several plots mirroring the output of the WREG program. (It is important to remember that the units of the axes replicate the units of the dependent variable <code>Y</code>.)</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">plot</span>(Ex.OLS<span class="op">$</span>fitted.values, Ex.OLS<span class="op">$</span>residuals,</a>
+<a class="sourceLine" id="cb12-2" title="2">  <span class="dt">main =</span> <span class="st">&#39;Residuals versus Estimated Flow Characteristics&#39;</span>,</a>
+<a class="sourceLine" id="cb12-3" title="3">  <span class="dt">xlab =</span> <span class="st">&#39;Estimated Flow Characteristic&#39;</span>, <span class="dt">ylab =</span> <span class="st">&#39;Residual&#39;</span>,</a>
+<a class="sourceLine" id="cb12-4" title="4">  <span class="dt">xaxs =</span> <span class="st">&#39;i&#39;</span>, <span class="dt">yaxs =</span> <span class="st">&#39;i&#39;</span>, <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">2</span>, <span class="dv">2</span>), <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">7</span>, <span class="dv">9</span>))</a>
+<a class="sourceLine" id="cb12-5" title="5"><span class="kw">grid</span>(<span class="dt">nx =</span> <span class="dv">16</span>, <span class="dt">ny =</span> <span class="dv">16</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" title="1"><span class="kw">plot</span>(Ex.OLS<span class="op">$</span>Y, Ex.OLS<span class="op">$</span>ResLevInf<span class="op">$</span>Leverage,</a>
+<a class="sourceLine" id="cb13-2" title="2">  <span class="dt">main =</span> <span class="st">&#39;Leverage Values versus Observations&#39;</span>,</a>
+<a class="sourceLine" id="cb13-3" title="3">  <span class="dt">xlab =</span> <span class="st">&#39;Observation&#39;</span>, <span class="dt">ylab =</span> <span class="st">&#39;Leverage Value&#39;</span>,</a>
+<a class="sourceLine" id="cb13-4" title="4">  <span class="dt">xaxs =</span> <span class="st">&#39;i&#39;</span>, <span class="dt">yaxs =</span> <span class="st">&#39;i&#39;</span>, <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.5</span>), <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">6</span>, <span class="dv">11</span>))</a>
+<a class="sourceLine" id="cb13-5" title="5"><span class="kw">grid</span>(<span class="dt">nx =</span> <span class="dv">20</span>, <span class="dt">ny =</span> <span class="dv">10</span>)</a>
+<a class="sourceLine" id="cb13-6" title="6"><span class="kw">abline</span>(Ex.OLS<span class="op">$</span>LevLim, <span class="dv">0</span>, <span class="dt">col =</span> <span class="st">&#39;red&#39;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">plot</span>(Ex.OLS<span class="op">$</span>Y, Ex.OLS<span class="op">$</span>ResLevInf<span class="op">$</span>Influence,</a>
+<a class="sourceLine" id="cb14-2" title="2">  <span class="dt">main =</span> <span class="st">&#39;Influence Value versus Observation&#39;</span>,</a>
+<a class="sourceLine" id="cb14-3" title="3">  <span class="dt">xlab =</span> <span class="st">&#39;Observation&#39;</span>, <span class="dt">ylab =</span> <span class="st">&#39;Influence Value&#39;</span>,</a>
+<a class="sourceLine" id="cb14-4" title="4">  <span class="dt">xaxs =</span> <span class="st">&#39;i&#39;</span>, <span class="dt">yaxs =</span> <span class="st">&#39;i&#39;</span>, <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">1.2</span>), <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">6</span>, <span class="dv">11</span>))</a>
+<a class="sourceLine" id="cb14-5" title="5"><span class="kw">grid</span>(<span class="dt">nx =</span> <span class="dv">20</span>, <span class="dt">ny =</span> <span class="dv">12</span>)</a>
+<a class="sourceLine" id="cb14-6" title="6"><span class="kw">abline</span>(Ex.OLS<span class="op">$</span>InflLim, <span class="dv">0</span>, <span class="dt">col =</span> <span class="st">&#39;red&#39;</span>)</a></code></pre></div>
+</div>
+<div id="weighted-least-squares" class="section level2">
+<h2>4 Weighted Least-Squares</h2>
+<p>With a few additional inputs, the function <code>WREG.WLS</code> can apply weighted least-squares regression as defined by (2). In order to compute weights, the function requires information about record lengths and the fitted Log-Pearson Type III distribution.</p>
+<p>Example record lengths are included in the example data set:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" title="1">RL &lt;-<span class="st"> </span>importedData<span class="op">$</span>recLen</a></code></pre></div>
+<p>The example record lengths include the concurrent record lengths, resulting in a matrix. A vector of record lengths, ignoring the concurrent records, is obtained with <code>diag(RL)</code>; if a matrix is passed to <code>WREG.WLS</code> when <code>Reg=&#39;WLS&#39;</code>, then the diagnoal is extracted automatically.</p>
+<p>In addition to record lengths, the weighting designed by (2) requires information on the fitted Log-Pearson Type III distribution. The three parameters, the standard deviation, deviates and skew, are passed as a list to <code>WREG.MLR</code>. The example files contain the LP3 parameters for each dependent variable, so the following code extracts those related to the 1% event. Note that the standard deviation (S) and skew (G) do not depend on the event modeled.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1">LP3 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">S =</span> importedData<span class="op">$</span>LP3f<span class="op">$</span>S, <span class="dt">K =</span> importedData<span class="op">$</span>LP3k<span class="op">$</span>Q100, <span class="dt">G =</span> importedData<span class="op">$</span>LP3f<span class="op">$</span>G)</a></code></pre></div>
+<p>With these inputs, it is then possible to compute the coefficients based on the weight least-squares algorithm:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" title="1">Ex.WLS &lt;-<span class="st"> </span><span class="kw">WREG.WLS</span>(<span class="dt">Y =</span> Y, <span class="dt">X=</span> X, <span class="dt">recordLengths =</span> RL, <span class="dt">LP3 =</span> LP3, <span class="dt">transY =</span> transY)</a></code></pre></div>
+<p>The new coefficients are</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Coefficient</th>
+<th align="right">Standard Error</th>
+<th align="right">tStatistic</th>
+<th align="right">pValue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X0</td>
+<td align="right">5.7204</td>
+<td align="right">2.5130</td>
+<td align="right">2.2763</td>
+<td align="right">0.0379</td>
+</tr>
+<tr class="even">
+<td>A</td>
+<td align="right">-0.0305</td>
+<td align="right">0.1631</td>
+<td align="right">-0.1867</td>
+<td align="right">0.8544</td>
+</tr>
+<tr class="odd">
+<td>P1006</td>
+<td align="right">2.0126</td>
+<td align="right">1.6348</td>
+<td align="right">1.2311</td>
+<td align="right">0.2372</td>
+</tr>
+</tbody>
+</table>
+<p>The application of weighted least-squared regression produces a range of new performance metrics,</p>
+<pre><code>##  [1] &quot;MSE&quot;        &quot;R2&quot;         &quot;R2_adj&quot;     &quot;RMSE&quot;       &quot;R2_pseudo&quot; 
+##  [6] &quot;AVP&quot;        &quot;Sp&quot;         &quot;VP.PredVar&quot; &quot;ModErrVar&quot;  &quot;StanModErr&quot;</code></pre>
+<p>Finally, the output can be summarized by printing the regression object</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" title="1">Ex.WLS</a></code></pre></div>
+<pre><code>## Regression Model for 
+## Coefficients fit by weighted least-squares.
+## 
+## Equation:
+##  Y = 5.72 * X0 - 0.03 * A + 2.01 * P1006 
+## 
+## 
+## Performance Metrics
+## (Note: Units are based on the transformation of the dependent variable.)
+## Mean Squared Error:   1.4991 
+## Root Mean Squared Error: 186.49%
+## Coefficient of Determination (R2):   9.91%
+## Adjusted Coefficient of Determination (Adj-R2):  -2.1%
+## Pseudo Coefficient of Determination (Pseudo-R2): -2.15%
+## Average Variance of Prediction:   1.7088 
+## Average Standard Error of Prediction:    212.66%
+## Model Error Variance:     1.4593 
+## Standard Model Error Variance:   181.74%
+## 
+## Coefficients of Model      Coefficient  Standard Error T value  P&gt;|T|  
+## X0          5.720           2.513   2.276 0.0379 *
+## A          -0.030           0.163  -0.187 0.8544  
+## P1006       2.013           1.635   1.231 0.2372  
+## (* indicates significnace at the 5% level.)
+## 
+## Observations, Predictions, Residuals, Leverage and Influence
+## Leverage Limit:  0.3333
+## Influence Limit: 0.2222
+##    Observation Prediction Residual Leverage Influence Variance of Prediction
+## 1       6.1901     7.7358  -1.5457  0.4407*   0.7435*                 2.1244
+## 2       6.5043     8.2420  -1.7377   0.1524    0.1451                 1.6837
+## 3       7.8356     7.4245   0.4111  0.4663*    0.0626                 2.1466
+## 4       8.3405     8.6891  -0.3487   0.1524    0.0056                 1.6940
+## 5       7.8055     8.4347  -0.6292   0.1735    0.0224                 1.7183
+## 6       8.4031     8.5068  -0.1036   0.2213     9e-04                 1.7923
+## 7       8.8601     8.5893   0.2708   0.0798    0.0015                 1.5822
+## 8       8.3934     8.5448  -0.1513    0.103     7e-04                 1.6123
+## 9       9.1673     8.6167   0.5506    0.125    0.0111                 1.6457
+## 10      7.1899     8.6845  -1.4946   0.0864    0.0518                 1.5879
+## 11      6.8302     8.7424  -1.9122   0.1015    0.1018                 1.6120
+## 12      8.8908     8.6984   0.1924   0.1818    0.0022                 1.7316
+## 13     10.2080     8.7003   1.5078   0.1419    0.0964                 1.6742
+## 14      9.8190     8.6853   1.1337   0.1277    0.0475                 1.6528
+## 15      8.5362     8.6643  -0.1281   0.0909     4e-04                 1.5954
+## 16      9.9326     8.4132   1.5193   0.0636    0.0373                 1.5546
+## 17     10.1872     8.2089   1.9782   0.1107    0.1227                 1.6241
+## 18      8.4060     7.8990   0.5071   0.1809    0.0157                 1.7258</code></pre>
+</div>
+<div id="generalized-least-squares" class="section level2">
+<h2>5 Generalized Least-Squares</h2>
+<p>The final form of regression implemented in the WREG package is the hydrologic interpretation of generalized least-squares regression developed by (3). This application of generalized least-squares regression relies on an approximation of cross correlation based on inter-site distances. With this approximation, generalized least-squares regression can be applied with or without uncertainty in regional skew. The latitude and Longitude of each site, embedded in the imported data, are used to either assess the fit of estimated cross-correlation or apply generalized least-squares regression.</p>
+<div id="estimated-cross-correlation" class="section level3">
+<h3>5.1 Estimated cross-correlation</h3>
+<p>The WREG program provides a graphical user interface in order to determine a relationship between distance and correlation. In the WREG package, the function <code>xcorPlot</code> can be used to undertake the same exploration. By manually varying the <code>alpha</code>, <code>theta</code> and <code>concurrentMin</code>, one can assess the fitted estimates. The model can also be fit using two separate calculations of distances: the WREG program uses a nautical-mile approximation, while ‘DistMeth = 2’ applies the Haversine formula.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" title="1"><span class="kw">xcorPlot</span>(<span class="dt">object =</span> importedData, <span class="dt">alpha =</span> <span class="fl">0.002</span>, </a>
+<a class="sourceLine" id="cb21-2" title="2">  <span class="dt">theta =</span> <span class="fl">0.98</span>, <span class="dt">DistMeth =</span> <span class="dv">2</span>, <span class="dt">concurrentMin =</span> <span class="dv">25</span>, <span class="dt">plot =</span> <span class="ot">FALSE</span>)</a></code></pre></div>
+<pre><code>## [1] -1.124382</code></pre>
+<p>A change from the MatLab implementation, this figure gives the Nash-Sutcliffe efficiency of the correlation model. This is meant only as a rough guide as to improved fits. By toggling <code>plot</code> to <code>FALSE</code>, the NSE value will be returned; this may be useful for iterative searching.</p>
+</div>
+<div id="without-uncertainty-in-skew" class="section level3">
+<h3>5.2 Without uncertainty in skew</h3>
+<p>Once <code>alpha</code> and <code>theta</code> have been selected, it is possible to fit a model using generalized least-squares.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" title="1">Ex.GLS &lt;-<span class="st"> </span><span class="kw">WREG.GLS</span>(<span class="dt">Y =</span> Y, <span class="dt">X =</span> X, <span class="dt">recordLengths =</span> RL, <span class="dt">LP3 =</span> LP3,</a>
+<a class="sourceLine" id="cb23-2" title="2">  <span class="dt">transY =</span> transY, <span class="dt">basinChars =</span> importedData<span class="op">$</span>BasChars, </a>
+<a class="sourceLine" id="cb23-3" title="3">  <span class="dt">alpha =</span> <span class="fl">0.002</span>, <span class="dt">theta =</span> <span class="fl">0.98</span>, <span class="dt">distMeth =</span> <span class="dv">2</span>)</a></code></pre></div>
+<p>The new coefficients are</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Coefficient</th>
+<th align="right">Standard Error</th>
+<th align="right">tStatistic</th>
+<th align="right">pValue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X0</td>
+<td align="right">5.7210</td>
+<td align="right">2.5064</td>
+<td align="right">2.2825</td>
+<td align="right">0.0375</td>
+</tr>
+<tr class="even">
+<td>A</td>
+<td align="right">-0.0256</td>
+<td align="right">0.1643</td>
+<td align="right">-0.1555</td>
+<td align="right">0.8785</td>
+</tr>
+<tr class="odd">
+<td>P1006</td>
+<td align="right">1.9907</td>
+<td align="right">1.6451</td>
+<td align="right">1.2101</td>
+<td align="right">0.2450</td>
+</tr>
+</tbody>
+</table>
+<p>The same perfromance metrics calculated when appolying wegihted least-squares regression are calculated when computing generalized least-squares regression. The full output can be summarized by printing the regression object</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">Ex.GLS</a></code></pre></div>
+<pre><code>## Regression Model for 
+## Coefficients fit by generalized least-squares.
+## 
+## Equation:
+##  Y = 5.72 * X0 - 0.03 * A + 1.99 * P1006 
+## 
+## 
+## Performance Metrics
+## (Note: Units are based on the transformation of the dependent variable.)
+## Mean Squared Error:   1.4994 
+## Root Mean Squared Error: 186.52%
+## Coefficient of Determination (R2):   9.9%
+## Adjusted Coefficient of Determination (Adj-R2):  -2.11%
+## Pseudo Coefficient of Determination (Pseudo-R2): -1.97%
+## Average Variance of Prediction:   1.7076 
+## Average Standard Error of Prediction:    212.51%
+## Model Error Variance:     1.4491 
+## Standard Model Error Variance:   180.54%
+## 
+## Coefficients of Model      Coefficient  Standard Error T value  P&gt;|T|  
+## X0          5.721           2.506   2.283 0.0375 *
+## A          -0.026           0.164  -0.156 0.8785  
+## P1006       1.991           1.645   1.210 0.2450  
+## (* indicates significnace at the 5% level.)
+## 
+## Observations, Predictions, Residuals, Leverage and Influence
+## Leverage Limit:  0.3333
+## Influence Limit: 0.2222
+##    Observation Prediction Residual Leverage Influence Variance of Prediction
+## 1       6.1901     7.7241  -1.5340  0.4417*   0.7414*                 2.1125
+## 2       6.5043     8.2463  -1.7420   0.1517    0.1464                 1.6710
+## 3       7.8356     7.4347   0.4008   0.472*    0.0624                 2.1356
+## 4       8.3405     8.6676  -0.3271   0.1512    0.0053                 1.7095
+## 5       7.8055     8.4376  -0.6321   0.1736    0.0233                 1.7059
+## 6       8.4031     8.5105  -0.1074   0.2227     0.001                 1.7791
+## 7       8.8601     8.5743   0.2858    0.077    0.0019                 1.5874
+## 8       8.3934     8.5410  -0.1476   0.1031     7e-04                 1.6052
+## 9       9.1673     8.6128   0.5546   0.1251    0.0119                 1.6392
+## 10      7.1899     8.6722  -1.4823   0.0907    0.0585                 1.5911
+## 11      6.8302     8.7273  -1.8971    0.103    0.1134                 1.6197
+## 12      8.8908     8.6754   0.2154   0.1774    0.0031                 1.7495
+## 13     10.2080     8.6796   1.5285   0.1343    0.1057                 1.6888
+## 14      9.8190     8.6657   1.1533   0.1284    0.0557                 1.6655
+## 15      8.5362     8.6488  -0.1126   0.0903     4e-04                 1.6024
+## 16      9.9326     8.4081   1.5245   0.0668    0.0406                 1.5481
+## 17     10.1872     8.2106   1.9765   0.1111    0.1253                 1.6125
+## 18      8.4060     7.8955   0.5105   0.1798    0.0158                 1.7144</code></pre>
+</div>
+<div id="uncertainty-in-skew" class="section level3">
+<h3>5.3 Uncertainty in skew</h3>
+<p>In addition to the generalized least-squares developed by (3), the WREG package is capable of implementing the correction for regional uncertainty developed by (4). When requesting the skew-correction, it is necessary to include several additional parameters:</p>
+<ul>
+<li><code>MSEGR</code> : The mean-squared-error of the regional skew</li>
+<li><code>TY</code> : The return period of the streamflow frequency statistic</li>
+<li><code>Peak</code> : A logical value indicating if the event is a peak event (<code>TRUE</code>) or a low event (<code>FALSE</code>)</li>
+</ul>
+<p>It is also necessary to add the regional skew value to the LP3 list:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">LP3<span class="op">$</span>GR &lt;-<span class="st"> </span>importedData<span class="op">$</span>LP3f<span class="op">$</span>GR</a></code></pre></div>
+<p>Applying generalized least-squares regression with a correction for uncertainty in regional skew</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" title="1">Ex.GLSs &lt;-<span class="st"> </span><span class="kw">WREG.GLS</span>(<span class="dt">Y =</span> Y, <span class="dt">X =</span> X, <span class="dt">recordLengths =</span> RL, <span class="dt">LP3 =</span> LP3,</a>
+<a class="sourceLine" id="cb27-2" title="2">  <span class="dt">transY =</span> transY, <span class="dt">basinChars =</span> importedData<span class="op">$</span>BasChars, </a>
+<a class="sourceLine" id="cb27-3" title="3">  <span class="dt">alpha =</span> <span class="fl">0.002</span>, <span class="dt">theta =</span> <span class="fl">0.98</span>, <span class="dt">distMeth =</span> <span class="dv">2</span>,</a>
+<a class="sourceLine" id="cb27-4" title="4">  <span class="dt">MSEGR =</span> <span class="fl">0.302</span>, <span class="dt">TY =</span> <span class="dv">100</span>, <span class="dt">peak =</span> <span class="ot">TRUE</span>, <span class="dt">regSkew =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<p>produces a new set of coefficients</p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">Coefficient</th>
+<th align="right">Standard Error</th>
+<th align="right">tStatistic</th>
+<th align="right">pValue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>X0</td>
+<td align="right">5.7258</td>
+<td align="right">2.4976</td>
+<td align="right">2.2925</td>
+<td align="right">0.0368</td>
+</tr>
+<tr class="even">
+<td>A</td>
+<td align="right">-0.0239</td>
+<td align="right">0.1644</td>
+<td align="right">-0.1454</td>
+<td align="right">0.8863</td>
+</tr>
+<tr class="odd">
+<td>P1006</td>
+<td align="right">1.9802</td>
+<td align="right">1.6410</td>
+<td align="right">1.2067</td>
+<td align="right">0.2462</td>
+</tr>
+</tbody>
+</table>
+<p>The full output is summarized by printing the regression object</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" title="1">Ex.GLSs</a></code></pre></div>
+<pre><code>## Regression Model for 
+## Coefficients fit by generalized least-squares with an 
+## adjustment for uncertainty in regional skew.
+## 
+## Equation:
+##  Y = 5.73 * X0 - 0.02 * A + 1.98 * P1006 
+## 
+## 
+## Performance Metrics
+## (Note: Units are based on the transformation of the dependent variable.)
+## Mean Squared Error:   1.4995 
+## Root Mean Squared Error: 186.54%
+## Coefficient of Determination (R2):   9.89%
+## Adjusted Coefficient of Determination (Adj-R2):  -2.12%
+## Pseudo Coefficient of Determination (Pseudo-R2): -1.75%
+## Average Variance of Prediction:   1.6835 
+## Average Standard Error of Prediction:    209.39%
+## Model Error Variance:     1.4247 
+## Standard Model Error Variance:   177.67%
+## 
+## Coefficients of Model      Coefficient  Standard Error T value  P&gt;|T|  
+## X0          5.726           2.498   2.293 0.0368 *
+## A          -0.024           0.164  -0.145 0.8863  
+## P1006       1.980           1.641   1.207 0.2462  
+## (* indicates significnace at the 5% level.)
+## 
+## Observations, Predictions, Residuals, Leverage and Influence
+## Leverage Limit:  0.3333
+## Influence Limit: 0.2222
+##    Observation Prediction Residual Leverage Influence Variance of Prediction
+## 1       6.1901     7.7216  -1.5315  0.4411*   0.7385*                 2.0850
+## 2       6.5043     8.2481  -1.7439   0.1519    0.1487                 1.6446
+## 3       7.8356     7.4399   0.3957  0.4753*    0.0629                 2.1058
+## 4       8.3405     8.6602  -0.3198   0.1504     0.005                 1.6893
+## 5       7.8055     8.4387  -0.6332   0.1736    0.0237                 1.6795
+## 6       8.4031     8.5117  -0.1086   0.2228     0.001                 1.7522
+## 7       8.8601     8.5692   0.2908   0.0766    0.0019                 1.5653
+## 8       8.3934     8.5398  -0.1463   0.1036     7e-04                 1.5801
+## 9       9.1673     8.6113   0.5560   0.1254    0.0122                 1.6139
+## 10      7.1899     8.6680  -1.4780    0.092    0.0597                 1.5681
+## 11      6.8302     8.7219  -1.8917   0.1029    0.1131                 1.5976
+## 12      8.8908     8.6675   0.2233   0.1761    0.0033                 1.7298
+## 13     10.2080     8.6725   1.5355   0.1314    0.1037                 1.6683
+## 14      9.8190     8.6590   1.1600   0.1287    0.0566                 1.6447
+## 15      8.5362     8.6434  -0.1072   0.0907     3e-04                 1.5804
+## 16      9.9326     8.4066   1.5260   0.0673    0.0413                 1.5236
+## 17     10.1872     8.2117   1.9755   0.1111    0.1264                 1.5866
+## 18      8.4060     7.8954   0.5107   0.1791    0.0158                 1.6880</code></pre>
+</div>
+</div>
+<div id="region-of-influence-regression" class="section level2">
+<h2>6 Region-of-influence regression</h2>
+<p>The WREG program is also capable of applying region-of-influence regression, calculating coefficients by any of the methods previously discussed. This same functionality is replicated in the WREG package using the <code>WREG.RoI</code> function. This vignette will not explore the application of region-of-influence regression, but the associated help files may provide the guidance needed. Naturally, applying region-of-influence produces several unique outputs; again, the help files provide descriptions.</p>
+</div>
+<div id="graphical-user-interface" class="section level2">
+<h2>7 Graphical User Interface</h2>
+<p>A graphical user interface was created for this package. It can be downloaded as a stand-alone executable or launch from the r-console with the command <code>WREGgui()</code>.</p>
+</div>
+<div id="references" class="section level2">
+<h2>8 References</h2>
+<ol style="list-style-type: decimal">
+<li>Eng, K., Chen, Y., and Kiang, J.E., 2009, User’s guide to the weighted-multiple-linear-regression program (WREG version 1.0): U.S. Geological Survey Techniques and Methods, book 4, chap. A8, 21 p.</li>
+<li>Tasker, G.D., 1980, Hydrologic regression with weighted least squares: Water Resources Research, v. 16, no. 6, p. 1107-1113.</li>
+<li>Stedinger, J.R, and Tasker, G.D., 1985, Regional hydrologic analysis, 1, ordinary, weighted, and generalized least squares compared: Water Resources Research, v. 21, no. 9, p. 1421-1432.</li>
+<li>Griffis, V.W., and Stedinger, J.R., 2007, The use of GLS regression in regional hydrologic analyses: Journal of Hydrology, v. 344, p. 82-95.—</li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

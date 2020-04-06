@@ -3,11 +3,8 @@
 \name{print}
 \alias{print}
 \alias{print.WREG.OLS}
-\alias{print}
 \alias{print.WREG.WLS}
-\alias{print}
 \alias{print.WREG.GLS}
-\alias{print}
 \alias{print.WREG.GLSs}
 \title{Print summary of WREG results}
 \usage{

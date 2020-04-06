@@ -4,10 +4,26 @@
 \alias{WREG.RoI}
 \title{Region-of-Influence Regression (WREG)}
 \usage{
-WREG.RoI(Y, X, Reg, transY = NA, recordLengths = NA, LP3 = NA,
-  regSkew = FALSE, alpha = 0.01, theta = 0.98, BasinChars = NA,
-  MSEGR = NA, TY = 2, Peak = T, ROI = c("PRoI", "GRoI", "HRoI"),
-  n = NA, D = 250, DistMeth = 2, Legacy = FALSE)
+WREG.RoI(
+  Y,
+  X,
+  Reg,
+  transY = NA,
+  recordLengths = NA,
+  LP3 = NA,
+  regSkew = FALSE,
+  alpha = 0.01,
+  theta = 0.98,
+  BasinChars = NA,
+  MSEGR = NA,
+  TY = 2,
+  Peak = T,
+  ROI = c("PRoI", "GRoI", "HRoI"),
+  n = NA,
+  D = 250,
+  DistMeth = 2,
+  Legacy = FALSE
+)
 }
 \arguments{
 \item{Y}{The dependent variable of interest, with any transformations already 

@@ -5,9 +5,9 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Weighted-Multiple-Linear Regression Program (WREG, v. 1.06)}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+  \VignetteIndexEntry{Weighted-Multiple-Linear Regression Program (WREG, v. 3.00)}
+  \VignetteEngine{knitr::rmarkdown}
+  \VignetteEncoding{UTF-8}
 ---
 
 ## 1 Introduction
