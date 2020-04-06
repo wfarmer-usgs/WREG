@@ -7,17 +7,22 @@
 #' @param pfqPath A directory that contains all of PeakFQ files for each site 
 #' in the GIS file.  Files can be contained in the main path or in 
 #' subdirectories of \code{pfqPath}.  Each site should be represented by one
-#'  and only one .EXP and .PRT file.
+#'  and only one .EXP and .PRT file. (NOTE: \code{\link{importPeakFQ_oneFile}} 
+#'  is provided to parse EXPs and PRTs that contain more than one site.)
 #' @param gisFile A tab-delimited text file that contains a matrix whose rows 
 #' represent the sites and contains columns that include \sQuote{Station.ID}, 
 #' \sQuote{Lat}, \sQuote{Long} and any other variables to be used for analysis.
 #' @param sites (optional) A vetor of sites that should be return.  Allows for 
-#' data subsetting.
+#' data subsetting. Gage IDs will be checked to ensure that they are an even
+#'  number of characters. If the length of an idea is an odd number of 
+#'  characters, a leading zero is appended.
 #' 
 #' @details
 #' This functions allows users to read output directly from PeakFQ without 
 #' the need to manipulate additional files.  The site selection is driven 
-#' by the sites in the GIS table.
+#' by the sites in the GIS table. Given the large variability of outputs from
+#' PeakFQ, based on user inputs, this is a fragile function; spot checks are
+#' recommended.
 #' 
 #' @return All outputs are returned as part of a list.  The list includes:
 #' \item{sites}{A vector of site IDs.}
@@ -62,7 +67,8 @@ importPeakFQ <- function(pfqPath,gisFile,sites='') {
   gisData$Station.ID <- toupper(as(gisData$Station.ID, 'character'))
   
   #check to see if any sites need a zero appended
-  zero_append <- which(nchar(gisData$Station.ID) != 8)
+  # Assumes that all gage ID should be an even set of characters
+  zero_append <- which((nchar(gisData$Station.ID) %% 2) != 0)
   gisData$Station.ID[zero_append] <- paste0("0",gisData$Station.ID[zero_append])
   
   # subset to specified sites
@@ -111,16 +117,30 @@ importPeakFQ <- function(pfqPath,gisFile,sites='') {
                  paste0(droppedSites, collapse=","))))
   }
   
-  EXP_G <- do.call(rbind,lapply(allFilesEXP,read.table,skip=7,nrows=1))
-  EXP_S <- do.call(rbind,lapply(allFilesEXP,read.table,skip=9,nrows=1))
-  EXP_GR <- do.call(rbind,lapply(allFilesEXP,read.table,skip=14,nrows=1))
-  EXP_MSEGR <- do.call(rbind,lapply(allFilesEXP,read.table,skip=15,nrows=1))
-  EXP_N <- do.call(rbind,lapply(allFilesEXP,read.table,skip=16,nrows=1))[,2] + 
-    do.call(rbind,lapply(allFilesEXP,read.table,skip=17,nrows=1))[,2]
-  EXP_AEP <- do.call(rbind,lapply(allFilesEXP,read.table,skip=21,nrows=1))
-  EXP_Est <- do.call(rbind,lapply(allFilesEXP,read.table,skip=22,nrows=1))
-  EXP_Var <- do.call(rbind,lapply(allFilesEXP,read.table,skip=23,nrows=1))
-  EXP_K <- do.call(rbind,lapply(allFilesEXP,read.table,skip=26,nrows=1))
+  # Modified extraction code that removes hard-code skip
+  # WHF 20190215
+  EXP_G <- EXP_S <- EXP_GR <- EXP_MSEGR <- array(NA, dim = c(length(allFilesEXP), 2))
+  
+  for (i in 1:length(allFilesEXP)) {
+    con <- file(allFilesEXP[i],open="r")
+    line <- readLines(con)
+    close(con)
+    
+    EXP_G[i, 2] <- as.numeric(trimws(unlist(strsplit(line[grep(pattern = "Skew ", x = line)], split = "\t"))[2]))
+    EXP_S[i, 2] <- as.numeric(trimws(unlist(strsplit(line[grep(pattern = "StandDev", x = line)], split = "\t"))[2]))
+    EXP_GR[i, 2] <- as.numeric(trimws(unlist(strsplit(line[grep(pattern = "RegSkew", x = line)], split = "\t"))[2]))
+    EXP_MSEGR[i, 2] <- as.numeric(trimws(unlist(strsplit(line[grep(pattern = "RegMSEG", x = line)], split = "\t"))[2]))
+    temp <- suppressWarnings(as.numeric(trimws(unlist(strsplit(line[grep(pattern = "EXC_Prob", x = line)], split = "\t")))))
+    if (i == 1) {
+      n <- length(temp) - 1
+      EXP_AEP <- EXP_Est <- EXP_Var <- EXP_K <- array(NA, dim = c(length(allFilesEXP), length(temp)))
+    }
+    EXP_AEP[i, ] <- temp
+    EXP_Est[i, ] <- suppressWarnings(as.numeric(trimws(unlist(strsplit(line[grep(pattern = "Estimate", x = line)], split = "\t")))))
+    EXP_Var[i, ] <- suppressWarnings(as.numeric(trimws(unlist(strsplit(line[grep(pattern = "Variance", x = line)], split = "\t")))))
+    EXP_K[i, ] <- suppressWarnings(as.numeric(trimws(unlist(strsplit(line[grep(pattern = "K-Value", x = line)], split = "\t")))))
+    
+  }
   
   # Dependent Variables (with names)
   Y <- EXP_Est[,2:ncol(EXP_Est)]
@@ -238,15 +258,17 @@ importPeakFQ <- function(pfqPath,gisFile,sites='') {
   colnames(EXP_SiteID) <- "Station.ID"
   
   AEP <- AEP[1,]
-  
-  colnames(Y) <- paste("AEP",AEP[1,],sep="_")
+  Y <- as.data.frame(Y)
+  colnames(Y) <- paste("AEP",AEP,sep="_")
   Y$Station.ID <- EXP_SiteID$Station.ID
   Y <- Y[c(ncol(Y),1:ncol(Y)-1)]
   
+  LP3f <- as.data.frame(LP3f)
   LP3f$Station.ID <- EXP_SiteID$Station.ID
   LP3f <- LP3f[c(ncol(LP3f),1:ncol(LP3f)-1)]
   
-  colnames(LP3k) <- paste("AEP",AEP[1,],sep="_")
+  LP3k <- as.data.frame(LP3k)
+  colnames(LP3k) <- paste("AEP",AEP,sep="_")
   LP3k$Station.ID <- EXP_SiteID$Station.ID
   LP3k <- LP3k[c(ncol(LP3k),1:ncol(LP3k)-1)]
   

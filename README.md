@@ -43,21 +43,15 @@ install.packages("WREG")
 
 Regularly, it is a good idea to update *ALL* your packages in R. If using RStudio, this is quite easy, there's an Update button in the "Packages" tab. This checks CRAN and GRAN for updates. It is a good idea to click this update regularly.
 
-## Run WREG
+## Version Notes
+Version 1: Implemented in Matlab with standalone executable.
 
-To run the WREG app:
+Version 2: Implemented in R, with GUI interface and standalone executable.
 
-1. Open RStudio
-2. In the Console (lower-left window of RStudio) paste the following:
+Version 3.00: Removed GUI, thus depricating the standalone executable.
 
-```r
-library(WREG)
-WREGgui()
-```
-
-A standalone executable is also available for the Microsoft Windows Operating Syste,.
-
-The package can also be used form the command line.  Specific functions, like the Region of Influence Regression, are only available from the command line.
+  Fixed bugs in importPeakFQ function and added function to import from 
+  large, multi-site EXPs and PRTs.
 
 
 Disclaimer
@@ -71,8 +65,8 @@ This software is provided "AS IS."
 
 
 
-Windows Tests: [![Build status](https://ci.appveyor.com/api/projects/status/weeq7r99k6hp6rrf?svg=true)](https://ci.appveyor.com/project/USGS-R/wreg)
+Windows Tests: [![Build status](https://ci.appveyor.com/api/projects/status/j83w5jf94nkb419s/branch/noGUI?svg=true)](https://ci.appveyor.com/project/wfarmer-usgs/wreg/branch/noGUI)
 
-Linux Tests: [![travis](https://travis-ci.org/USGS-R/WREG.svg?branch=master)](https://travis-ci.org/USGS-R/WREG)
+Linux Tests: [![Build Status](https://travis-ci.org/wfarmer-usgs/WREG.svg?branch=noGUI)](https://travis-ci.org/wfarmer-usgs/WREG)
 
-Code Coverage: [![Coverage Status](https://coveralls.io/repos/github/USGS-R/WREG/badge.svg?branch=master)](https://coveralls.io/github/USGS-R/WREG?branch=master)
+Code Coverage: [![Coverage Status](https://coveralls.io/repos/github/wfarmer-usgs/WREG/badge.svg?branch=noGUI)](https://coveralls.io/github/wfarmer-usgs/WREG?branch=noGUI)

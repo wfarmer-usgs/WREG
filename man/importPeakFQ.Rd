@@ -10,14 +10,17 @@ importPeakFQ(pfqPath, gisFile, sites = "")
 \item{pfqPath}{A directory that contains all of PeakFQ files for each site 
 in the GIS file.  Files can be contained in the main path or in 
 subdirectories of \code{pfqPath}.  Each site should be represented by one
- and only one .EXP and .PRT file.}
+ and only one .EXP and .PRT file. (NOTE: \code{\link{importPeakFQ_oneFile}} 
+ is provided to parse EXPs and PRTs that contain more than one site.)}
 
 \item{gisFile}{A tab-delimited text file that contains a matrix whose rows 
 represent the sites and contains columns that include \sQuote{Station.ID}, 
 \sQuote{Lat}, \sQuote{Long} and any other variables to be used for analysis.}
 
 \item{sites}{(optional) A vetor of sites that should be return.  Allows for 
-data subsetting.}
+data subsetting. Gage IDs will be checked to ensure that they are an even
+ number of characters. If the length of an idea is an odd number of 
+ characters, a leading zero is appended.}
 }
 \value{
 All outputs are returned as part of a list.  The list includes:
@@ -46,7 +49,9 @@ prepares it for use in WREG-R.
 \details{
 This functions allows users to read output directly from PeakFQ without 
 the need to manipulate additional files.  The site selection is driven 
-by the sites in the GIS table.
+by the sites in the GIS table. Given the large variability of outputs from
+PeakFQ, based on user inputs, this is a fragile function; spot checks are
+recommended.
 }
 \examples{
 peakFQdir <- paste0(
