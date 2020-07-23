@@ -50,5 +50,6 @@ regEquation <- function(object, decimals = 2) {
       ifelse(rownames(object$Coefs)[i] == "Intercept", "", paste0(" * ", rownames(object$Coefs)[i]))
     )
   }
+  eqStr <- paste0(eqStr, "\n\n\t[NOTE: This does not include any transformations to variables.\n\tThis formula is derived from the columns names.")
   return(eqStr)
 }
